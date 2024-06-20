@@ -20,6 +20,7 @@ type openstack_nova_defaults = {
     'initial_disk_allocation_ratio' ? double with SELF > 0
     'instance_usage_audit' ? boolean = false
     'instance_usage_audit_period' ? choice('hour', 'day', 'month', 'year') = 'month'
+    'max_concurrent_snapshots' ? long
     'ram_allocation_ratio' ? double with SELF > 0
     'initial_ram_allocation_ratio' ? double with SELF > 0
     'resume_guests_state_on_host_boot' : boolean = false
@@ -71,6 +72,11 @@ type openstack_nova_filter_scheduler = {
     parameters for nova configuration [glance] section
 }
 type openstack_nova_glance = {
+    'enable_rbd_download' : boolean = true
+    'rbd_ceph_conf' : string
+    'rbd_connect_timeout' ? long
+    'rbd_pool' : string
+    'rbd_user' : string
 };
 
 @documentation {
@@ -81,7 +87,9 @@ type openstack_nova_libvirt = {
     'disk_cachemodes' ? string[]
     'hw_disk_discard' ? choice('ignore', 'unmap')
     'images_rbd_ceph_conf' ? string
+    'images_rbd_glance_store_name' ? string
     'images_rbd_pool' ? string
+    'images_rbd_glance_store_name' ? string
     'images_type' ? choice('default', 'flat', 'lvm', 'ploop', 'qcow2', 'rbd', 'raw')
     'inject_key' ? boolean = false
     'inject_password' ? boolean = false

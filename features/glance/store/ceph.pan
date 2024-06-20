@@ -1,21 +1,14 @@
 unique template features/glance/store/ceph;
 
-variable CEPH_CLUSTER_CONFIG ?= error('CEPH_CLUSTER_CONFIG required but undefined');
-variable CEPH_NODE_VERSIONS ?= 'site/ceph/version';
-variable CEPH_CONFIG_FILE ?= 'features/ceph/ceph_conf/config';
+# Base Ceph configuration
+include 'features/openstack/ceph/config';
 
-include CEPH_NODE_VERSIONS;
-
-include CEPH_CLUSTER_CONFIG;
-
-include CEPH_CONFIG_FILE;
-
-# Add ceph package
-'/software/packages' = {
-    pkg_repl('ceph');
-
-    SELF;
-};
+# Build keyring file
+variable OS_CEPH_KEYRING_PARAMS = dict(
+    'key', OS_GLANCE_BACKEND_PARAMS[OS_GLANCE_BACKEND_DEFAULT]['rbd_key'],
+    'user', OS_GLANCE_BACKEND_PARAMS[OS_GLANCE_BACKEND_DEFAULT]['rbd_user'],
+);
+include 'features/openstack/ceph/keyring';
 
 # If one RBD store specifed a data pool, add a section for the Ceph Glance user id
 # to support splitting metadata and data in 2 different pools

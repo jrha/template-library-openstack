@@ -34,6 +34,7 @@ bind '/software/components/metaconfig/services/{/etc/cinder/cinder.conf}/content
 'contents/DEFAULT' = openstack_load_config('features/openstack/base');
 'contents/DEFAULT' = openstack_load_config('features/openstack/logging/' + OS_LOGGING_TYPE);
 'contents/DEFAULT/auth_strategy' = 'keystone';
+'contents/DEFAULT/enable_v3_api' = true;
 'contents/DEFAULT/my_ip' = PRIMARY_IP;
 'contents/DEFAULT/glance_api_servers' = list(format('%s://%s:%s', OS_GLANCE_CONTROLLER_PROTOCOL, OS_GLANCE_PUBLIC_HOST, OS_GLANCE_PUBLIC_PORT));
 
@@ -42,7 +43,6 @@ bind '/software/components/metaconfig/services/{/etc/cinder/cinder.conf}/content
 
 # [keystone_authtoken] section
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
-'contents/keystone_authtoken/memcached_servers' = list('localhost:11211');
 'contents/keystone_authtoken/username' = OS_CINDER_USERNAME;
 'contents/keystone_authtoken/password' = OS_CINDER_PASSWORD;
 

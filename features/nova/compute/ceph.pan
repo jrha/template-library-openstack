@@ -1,5 +1,26 @@
 unique template features/nova/compute/ceph;
 
+@{
+desc = if true, enable direct image download from Ceph (instead of Glance)
+values = boolean
+default = true if the required Glance configuration is present, false otherwise
+required = no
+}
+variable OS_NOVA_ENABLE_RBD_DOWNLOAD ?= (
+    is_defined(OS_GLANCE_BACKEND_PARAMS) && 
+    is_defined(OS_GLANCE_BACKEND_DEFAULT) &&
+    (OS_GLANCE_BACKEND_PARAMS[OS_GLANCE_BACKEND_DEFAULT]['type'] == 'rbd') 
+);
+
+
+# Base Ceph configuration
+include 'features/openstack/ceph/config';
+
+
+#############################################################
+# Libvirt secret for attaching Ceph block devices to the VM #
+#############################################################
+
 variable OS_LIBVIRT_CEPH_SECRET ?= error("OS_LIBVIRT_CEPH_SECRET must be defined with the Ceph key for client.cinder Ceph user");
 # Note : OS_LIBVIRT_CEPH_SECRET_UUID must match what is defined in the RBD backend of the Cinder configuration
 # as Cinder passes the UUID to use to Nova compute service. Currently, there is no support in the templates
@@ -43,3 +64,26 @@ include 'components/filecopy/config';
 
     SELF;
 };
+
+##############################################################
+# Configuration for direct access from Ceph of Glance images #
+##############################################################
+
+prefix '/software/components/metaconfig/services/{/etc/nova/nova.conf}';
+'contents/glance/enable_rbd_download' = OS_NOVA_ENABLE_RBD_DOWNLOAD; 
+'contents/glance/rbd_ceph_conf' = OS_NOVA_CEPH_IMAGES_CEPH_CONF;
+'contents/glance/rbd_pool' = OS_GLANCE_BACKEND_PARAMS[OS_GLANCE_BACKEND_DEFAULT]['rbd_pool'];
+'contents/glance/rbd_user' = OS_GLANCE_BACKEND_PARAMS[OS_GLANCE_BACKEND_DEFAULT]['rbd_user'];
+# Define images_rbd_glance_store_name only if the default backend if a RBD one
+'contents/libvirt/images_rbd_glance_store_name' = if ( OS_NOVA_ENABLE_RBD_DOWNLOAD ) {
+    OS_GLANCE_BACKEND_DEFAULT;
+} else {
+    null;
+};
+
+# Build keyring file
+variable OS_CEPH_KEYRING_PARAMS = dict(
+    'key', OS_GLANCE_BACKEND_PARAMS[OS_GLANCE_BACKEND_DEFAULT]['rbd_key'],
+    'user', OS_GLANCE_BACKEND_PARAMS[OS_GLANCE_BACKEND_DEFAULT]['rbd_user'],
+);
+include 'features/openstack/ceph/keyring';

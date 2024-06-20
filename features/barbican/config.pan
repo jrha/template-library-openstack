@@ -40,7 +40,6 @@ bind '/software/components/metaconfig/services/{/etc/barbican/barbican.conf}/con
 
 # [keystone_authtoken] section
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
-'contents/keystone_authtoken/memcached_servers' = list('localhost:11211');
 'contents/keystone_authtoken/username' = OS_BARBICAN_USERNAME;
 'contents/keystone_authtoken/password' = OS_BARBICAN_PASSWORD;
 
