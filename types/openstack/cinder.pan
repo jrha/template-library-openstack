@@ -12,6 +12,7 @@ include 'types/openstack/core';
 type openstack_cinder_defaults = {
     include openstack_DEFAULTS
 
+    'enable_v3_api' ? boolean
     'enabled_backends' ? string[]
     'glance_api_servers' : type_hostURI[]
     'osapi_volume_listen_port' ? long(1..65535)

@@ -66,6 +66,7 @@ bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' =
 } else {
   null;
 };
+'contents/DEFAULT/max_concurrent_snapshots' = OS_NOVA_MAX_CONCURRENT_SNAPSHOTS;
 
 # [cinder] section
 'contents/cinder' = {

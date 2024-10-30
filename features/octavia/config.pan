@@ -147,7 +147,6 @@ bind '/software/components/metaconfig/services/{/etc/octavia/octavia.conf}/conte
 
 # [keystone_authtoken] section
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
-'contents/keystone_authtoken/memcached_servers' = list('localhost:11211');
 'contents/keystone_authtoken/username' = OS_OCTAVIA_USERNAME;
 'contents/keystone_authtoken/password' = OS_OCTAVIA_PASSWORD;
 

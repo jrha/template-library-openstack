@@ -32,7 +32,6 @@ bind '/software/components/metaconfig/services/{/etc/placement/placement.conf}/c
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
 'contents/keystone_authtoken/username' = OS_PLACEMENT_USERNAME;
 'contents/keystone_authtoken/password' = OS_PLACEMENT_PASSWORD;
-'contents/keystone_authtoken/memcached_servers' = list('localhost:11211');
 
 # [oslo_messaging_notifications] section
 'contents/oslo_messaging_notifications' = openstack_load_config('features/oslo_messaging/notifications');

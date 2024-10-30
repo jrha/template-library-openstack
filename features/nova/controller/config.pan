@@ -93,7 +93,6 @@ bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' =
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
 'contents/keystone_authtoken/username' = OS_NOVA_USERNAME;
 'contents/keystone_authtoken/password' = OS_NOVA_PASSWORD;
-'contents/keystone_authtoken/memcached_servers' = list('localhost:11211');
 
 # [neutron] section
 'contents/neutron' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
@@ -101,6 +100,8 @@ bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' =
 'contents/neutron/password' = OS_NEUTRON_PASSWORD;
 'contents/neutron/service_metadata_proxy' = true;
 'contents/neutron/username' = OS_NEUTRON_USERNAME;
+'contents/neutron/memcached_servers' = null;
+
 # Remove options not valid in the [neutron] section
 'contents/neutron/auth_version' = null;
 'contents/neutron/service_token_roles' = null;

@@ -1,14 +1,29 @@
 unique template features/cinder/backend/ceph;
 
-# Add Ceph package
-'/software/packages' = pkg_repl('ceph');
+# Base Ceph configuration
+include 'features/openstack/ceph/config';
 
-# Create ceph.conf for connecting the CEPH cluster
-variable CEPH_CLUSTER_CONFIG ?= error('CEPH_CLUSTER_CONFIG required but undefined');
-variable CEPH_NODE_VERSIONS ?= 'site/ceph/version';
-variable CEPH_CONFIG_FILE ?= 'features/ceph/ceph_conf/config';
-include CEPH_NODE_VERSIONS;
-include CEPH_CLUSTER_CONFIG;
-include CEPH_CONFIG_FILE;
 prefix '/software/components/metaconfig/services/{/etc/ceph/ceph.conf}';
 'daemons/openstack-cinder-volume' = 'restart';
+
+# Build keyring file
+variable OS_CEPH_KEYRING_PARAMS = {
+    foreach (name; params; OS_CINDER_BACKEND_PARAMS) {
+        if ( params['type'] == 'rbd' ) {
+            if ( !is_defined(SELF['user']) ) {
+                SELF['user'] = params['rbd_user'];
+            } else if ( SELF['user'] != params['rbd_user'] ) {
+                error("All the RBD backends must use the same RBD user");
+            };
+            if ( !is_defined(SELF['key']) ) {
+                SELF['key'] = params['rbd_key'];
+            } else if ( SELF['key'] != params['rbd_key'] ) {
+                error("All the RBD backends must use the same RBD key");
+            };
+        };
+    };
+
+    SELF;
+};
+include if ( is_defined(OS_CEPH_KEYRING_PARAMS) ) 'features/openstack/ceph/keyring';
+

@@ -38,9 +38,6 @@ bind '/software/components/metaconfig/services/{/etc/neutron/neutron.conf}/conte
 'contents/database/max_pool_size' = OS_NEUTRON_DB_POOL_SIZE;
 'contents/database/max_overflow' = OS_NEUTRON_DB_MAX_OVERFLOW;
 
-# [keystone_authtoken]
-'contents/keystone_authtoken/memcached_servers' = list('localhost:11211');
-
 # [nova]
 'contents/nova' =  openstack_load_config(OS_AUTH_CLIENT_CONFIG);
 'contents/nova/username' = OS_NOVA_USERNAME;

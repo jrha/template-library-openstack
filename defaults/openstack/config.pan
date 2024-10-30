@@ -154,6 +154,7 @@ variable OS_NOVA_DISK_WEIGHT_MULTIPLIER ?= 1.0;
 variable OS_NOVA_RAM_RATIO ?= 1.0;
 variable OS_NOVA_RAM_WEIGHT_MULTIPLIER ?= 1.0;
 variable OS_NOVA_VIRT_TYPE ?= 'kvm';
+variable OS_NOVA_MAX_CONCURRENT_SNAPSHOTS ?= value('/hardware/cpu/0/cores') * length(value('/hardware/cpu')) / 5;
 variable OS_NOVA_DB_HOST ?= OS_DB_HOST;
 variable OS_NOVA_DB_USERNAME ?= 'nova';
 variable OS_NOVA_DB_PASSWORD ?= 'NOVA_DBPASS';
@@ -163,9 +164,9 @@ variable OS_NOVA_METADATA_HOST ?= OS_NOVA_CONTROLLER_HOST;
 variable OS_NOVA_UPGRADE_LEVELS ?= error('OS_NOVA_UPGRADE_LEVELS must be defined to the appropriate value for the current OpenStack cluster');
 # Ceph-related Variables
 variable OS_NOVA_USE_CEPH ?= true;
-variable OS_NOVA_CEPH_POOL ?= 'vms';
-variable OS_NOVA_CEPH_USER ?= 'cinder';
-variable OS_NOVA_CEPH_CEPH_CONF ?= '/etc/ceph/ceph.conf';
+variable OS_NOVA_CEPH_IMAGES_POOL ?= undef;
+variable OS_NOVA_CEPH_IMAGES_USER ?= undef;
+variable OS_NOVA_CEPH_IMAGES_CEPH_CONF ?= '/etc/ceph/ceph.conf';
 
 
 #############################

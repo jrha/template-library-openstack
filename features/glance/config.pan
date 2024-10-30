@@ -62,7 +62,6 @@ bind '/software/components/metaconfig/services/{/etc/glance/glance-api.conf}/con
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
 'contents/keystone_authtoken/username' = OS_GLANCE_USERNAME;
 'contents/keystone_authtoken/password' = OS_GLANCE_PASSWORD;
-'contents/keystone_authtoken/memcached_servers' = list('localhost:11211');
 
 # [paste_deploy] section
 'contents/paste_deploy/flavor' = 'keystone';

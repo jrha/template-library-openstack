@@ -71,7 +71,6 @@ bind '/software/components/metaconfig/services/{/etc/heat/heat.conf}/contents' =
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
 'contents/keystone_authtoken/username' = OS_HEAT_USERNAME;
 'contents/keystone_authtoken/password' = OS_HEAT_PASSWORD;
-'contents/keystone_authtoken/memcached_servers' = list('localhost:11211');
 
 # [trustee] section
 'contents/trustee/auth_type' = OS_TRUSTEE_TOKEN_AUTH_TYPE;
