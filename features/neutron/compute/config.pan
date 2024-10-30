@@ -1,5 +1,7 @@
 unique template features/neutron/compute/config;
 
+variable OS_NODE_SERVICES = append('neutron');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -10,6 +12,7 @@ include 'defaults/openstack/config';
 include 'features/neutron/variables/' + OS_NEUTRON_NETWORK_TYPE;
 
 # Include some common configuration
+variable OS_NEUTRON_CONFIG_ONLY = true;
 include 'features/neutron/base';
 
 

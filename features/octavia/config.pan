@@ -1,5 +1,7 @@
 unique template features/octavia/config;
 
+variable OS_NODE_SERVICES = append('octavia');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -110,6 +112,8 @@ prefix '/software/components/metaconfig/services/{/etc/octavia/octavia.conf}';
 'daemons/octavia-health-manager' = 'restart';
 'daemons/octavia-housekeeping' = 'restart';
 'daemons/octavia-worker' = 'restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/octavia/octavia.conf}/contents' = openstack_octavia_config;
 
 

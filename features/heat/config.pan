@@ -1,5 +1,7 @@
 unique template features/heat/config;
 
+variable OS_NODE_SERVICES = append('heat');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -26,6 +28,8 @@ prefix '/software/components/metaconfig/services/{/etc/heat/heat.conf}';
 'daemons/openstack-heat-api' = 'restart';
 'daemons/openstack-heat-api-cfn' = 'restart';
 'daemons/openstack-heat-engine' = 'restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/heat/heat.conf}/contents' = openstack_heat_config;
 
 # DEFAULT section

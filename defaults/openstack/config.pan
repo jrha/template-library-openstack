@@ -33,6 +33,7 @@ variable OS_METADATA_SECRET ?= error('OS_METADATA_SECRET must be declared');
 
 variable OS_LOGGING_TYPE ?= 'file';
 variable OS_AUTH_CLIENT_CONFIG ?= 'features/keystone/client/config';
+variable OS_AUTH_CLIENT_MINIMAL_CONFIG ?= 'features/keystone/client/config-minimal';
 
 # Define the following variable with the service project ID
 # Used by some services like Octavia to do some filtering
@@ -146,7 +147,9 @@ variable OS_NOVA_CONTROLLER_HOST ?= error('OS_NOVA_CONTROLLER_HOST must be decla
 variable OS_NOVA_VNC_HOST ?= OS_NOVA_CONTROLLER_HOST;
 variable OS_NOVA_CONTROLLER_PROTOCOL ?= 'http';
 variable OS_NOVA_VNC_PROTOCOL ?= OS_NOVA_CONTROLLER_PROTOCOL;
-variable OS_NOVA_OVERWRITE_DEFAULT_POLICY ?= false;
+# OS_NOVA_COMPUTE_POLICY muste be a policy file if a non-default policy is rquired
+# Policy file extension must be json or yaml
+variable OS_NOVA_COMPUTE_POLICY ?= undef;
 variable OS_NOVA_RESUME_VM_ON_BOOT ?= false;
 variable OS_NOVA_CPU_RATIO ?= 1.0;
 variable OS_NOVA_CPU_WEIGHT_MULTIPLIER ?= 1.0;

@@ -42,6 +42,13 @@ type openstack_magnum_cinder_client = {
 };
 
 @documentation {
+    cluster_heat section for Magnum
+}
+type openstack_magnum_cluster_heat = {
+    'create_timeout' : long = 60
+};
+
+@documentation {
     heat_client section for Magnum
 }
 type openstack_magnum_heat_client = {
@@ -84,6 +91,7 @@ type openstack_magnum_config = {
     'certificates' : openstack_magnum_certificates
     'cinder' : openstack_magnum_cinder
     'cinder_client' : openstack_magnum_cinder_client
+    'cluster_heat' : openstack_magnum_cluster_heat
     'database' : openstack_database
     'heat_client' : openstack_magnum_heat_client
     'keystone_auth' : openstack_keystone_authtoken

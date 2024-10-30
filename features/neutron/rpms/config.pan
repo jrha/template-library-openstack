@@ -1,7 +1,8 @@
 unique template features/neutron/rpms/config;
 
-prefix '/software/packages';
-'{openstack-neutron}' ?= dict();
-'{python3-neutronclient}' ?= dict();
-'{ebtables}' ?= dict();
-'{ipset}' ?= dict();
+'/software/packages' = {
+    pkg_repl('openstack-neutron');
+    pkg_repl('python3-neutronclient');
+
+    SELF;
+};

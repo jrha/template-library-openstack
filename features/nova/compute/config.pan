@@ -9,6 +9,8 @@ required = no
 variable OS_NOVA_LIVE_MIGRATION_SITE_CONFIG ?= undef;
 
 
+variable OS_NODE_SERVICES = append('nova');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -24,8 +26,32 @@ include 'features/nova/compute/rpms';
 # Include Placement configuration for compute servers
 include 'features/nova/compute/placement';
 
-# Include policy.json file
-include if ( OS_NOVA_OVERWRITE_DEFAULT_POLICY ) 'features/nova/compute/policy/config';
+# Include policy file if OS_NOVA_COMPUTE_POLICY is defined
+@{
+desc = file to load as the policy file. File extension is used to determine the policy file extension
+values = path relative to include paths
+default = undef
+requied = no
+}
+variable OS_NOVA_COMPUTE_POLICY ?= undef;
+include 'components/filecopy/config';
+'/software/components/filecopy/services' = {
+    if ( is_defined(OS_NOVA_COMPUTE_POLICY) ) {
+        toks = matches(OS_NOVA_COMPUTE_POLICY, '.*\.(json|yaml)$');
+        if ( length(toks) < 2 ) {
+            error('OS_NOVA_COMPUTE_POLICY must be a file name with the extension .json or .yaml');
+        };
+        policy_file = format('/etc/nova/policy.%s', toks[1]);
+        SELF[escape(policy_file)] = dict(
+            'config', file_contents(OS_NOVA_COMPUTE_POLICY),
+            'owner', 'root',
+            'perms', '0644',
+            'backup', true,
+        );
+    };
+
+    SELF;
+};
 
 # Enable nested virtualization if needed
 include if ( is_defined(OS_NOVA_COMPUTE_NESTED) && OS_NOVA_COMPUTE_NESTED ) 'features/nova/compute/nested';
@@ -50,11 +76,14 @@ prefix '/software/components/metaconfig/services/{/etc/nova/nova.conf}';
 'convert/truefalse' = true;
 'daemons/libvirtd' = 'restart';
 'daemons/openstack-nova-compute' = 'restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' = openstack_nova_compute_config;
 
+# Include nova.conf configuration common to all services
+include 'features/nova/common/config';
+
 # [DEFAULT] section
-'contents/DEFAULT' = openstack_load_config('features/openstack/base');
-'contents/DEFAULT' = openstack_load_config('features/openstack/logging/' + OS_LOGGING_TYPE);
 'contents/DEFAULT/cpu_allocation_ratio' = OS_NOVA_CPU_RATIO;
 'contents/DEFAULT/initial_cpu_allocation_ratio' = OS_NOVA_INITIAL_CPU_RATIO;
 'contents/DEFAULT/disk_allocation_ratio' = OS_NOVA_DISK_RATIO;
@@ -77,44 +106,8 @@ bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' =
   };
 };
 
-# [keystone_authtoken] section
-'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
-'contents/keystone_authtoken/username' = OS_NOVA_USERNAME;
-'contents/keystone_authtoken/password' = OS_NOVA_PASSWORD;
-
 # [libvirtd] section
 'contents/libvirt/virt_type' = OS_NOVA_VIRT_TYPE;
-
-# [neutron] section
-'contents/neutron/auth_type' = 'password';
-'contents/neutron/auth_url' = OS_KEYSTONE_CONTROLLER_PROTOCOL + '://' + OS_KEYSTONE_CONTROLLER_HOST + ':35357';
-'contents/neutron/password' = OS_NEUTRON_PASSWORD;
-'contents/neutron/project_name' = 'service';
-'contents/neutron/project_domain_id' = 'default';
-'contents/neutron/region_name' = OS_REGION_NAME;
-'contents/neutron/user_domain_id' = 'default';
-'contents/neutron/username' = OS_NEUTRON_USERNAME;
-
-# [oslo_concurrency]
-'contents/oslo_concurrency/lock_path' = '/var/lib/nova/tmp';
-
-#[oslo_messaging_rabbit] section
-'contents/oslo_messaging_rabbit' = openstack_load_config('features/rabbitmq/openstack/client/base');
-
-# [upgrade_levels] section
-# Require OS_NOVA_UPGRADE_LEVELS to be <= to current server version
-'contents/upgrade_levels' = if ( is_defined(OS_NOVA_UPGRADE_LEVELS) ) {
-    if ( OS_NOVA_UPGRADE_LEVELS <= OPENSTACK_VERSION_NAME ) {
-        dict('compute', OS_NOVA_UPGRADE_LEVELS);
-    } else {
-        error("OS_NOVA_UPGRADE_LEVELS (%s) must be less or equal to current OpenStack version (%s)",
-              OS_NOVA_UPGRADE_LEVELS,
-              OPENSTACK_VERSION_NAME,
-             );
-    };
-} else {
-    null;
-};
 
 # [vnc] section
 'contents/vnc/enabled' = true;

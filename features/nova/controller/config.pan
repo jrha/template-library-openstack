@@ -1,5 +1,7 @@
 unique template features/nova/controller/config;
 
+variable OS_NODE_SERVICES = append('nova');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -28,6 +30,34 @@ variable OS_NOVA_DEFAULT_SCHEDULE_ZONE ?= null;
 # Install RPMs for compute part of neutron
 include 'features/nova/controller/rpms';
 
+# Include policy file if OS_NOVA_CONTROLLER_POLICY is defined
+@{
+desc = file to load as the policy file. File extension is used to determine the policy file extension
+values = path relative to include paths
+default = undef
+requied = no
+}
+variable OS_NOVA_CONTROLLER_POLICY ?= undef;
+include 'components/filecopy/config';
+'/software/components/filecopy/services' = {
+    if ( is_defined(OS_NOVA_CONTROLLER_POLICY) ) {
+        toks = matches(OS_NOVA_CONTROLLER_POLICY, '.*\.(json|yaml)$');
+        if ( length(toks) < 2 ) {
+            error('OS_NOVA_CONTROLLER_POLICY must be a file name with the extension .json or .yaml');
+        };
+        policy_file = format('/etc/nova/policy.%s', toks[1]);
+        SELF[escape(policy_file)] = dict(
+            'config', file_contents(OS_NOVA_CONTROLLER_POLICY),
+            'owner', 'root',
+            'perms', '0644',
+            'backup', true,
+        );
+    };
+
+    SELF;
+};
+
+
 include 'components/systemd/config';
 prefix '/software/components/systemd/unit';
 'openstack-nova-api/startstop' = true;
@@ -44,11 +74,15 @@ prefix '/software/components/metaconfig/services/{/etc/nova/nova.conf}';
 'daemons/openstack-nova-scheduler'='restart';
 'daemons/openstack-nova-conductor'='restart';
 'daemons/openstack-nova-novncproxy'='restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' = openstack_nova_server_config;
 
+
+# Include nova.conf configuration common to all services
+include 'features/nova/common/config';
+
 # [DEFAULT] section
-'contents/DEFAULT' = openstack_load_config('features/openstack/base');
-'contents/DEFAULT' = openstack_load_config('features/openstack/logging/' + OS_LOGGING_TYPE);
 'contents/DEFAULT' = openstack_load_ssl_config( OS_NOVA_CONTROLLER_PROTOCOL == 'https' );
 'contents/DEFAULT/default_schedule_zone' = OS_NOVA_DEFAULT_SCHEDULE_ZONE;
 'contents/DEFAULT/cpu_allocation_ratio' = OS_NOVA_CPU_RATIO;
@@ -89,18 +123,9 @@ bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' =
 'contents/filter_scheduler/enabled_filters' = OS_NOVA_SCHEDULER_ENABLED_FILTERS;
 'contents/filter_scheduler/ram_weight_multiplier' = OS_NOVA_RAM_WEIGHT_MULTIPLIER;
 
-# [keystone_authtoken] section
-'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
-'contents/keystone_authtoken/username' = OS_NOVA_USERNAME;
-'contents/keystone_authtoken/password' = OS_NOVA_PASSWORD;
-
 # [neutron] section
-'contents/neutron' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
 'contents/neutron/metadata_proxy_shared_secret' = OS_METADATA_SECRET;
-'contents/neutron/password' = OS_NEUTRON_PASSWORD;
 'contents/neutron/service_metadata_proxy' = true;
-'contents/neutron/username' = OS_NEUTRON_USERNAME;
-'contents/neutron/memcached_servers' = null;
 
 # Remove options not valid in the [neutron] section
 'contents/neutron/auth_version' = null;
@@ -108,14 +133,8 @@ bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' =
 'contents/neutron/service_token_roles_required' = null;
 'contents/neutron/www_authenticate_uri' = null;
 
-# [oslo_concurrency]
-'contents/oslo_concurrency/lock_path' = '/var/lib/nova/tmp';
-
 #[oslo_messaging_notifications] section
 'contents/oslo_messaging_notifications' = openstack_load_config('features/oslo_messaging/notifications');
-
-#[oslo_messaging_rabbit] section
-'contents/oslo_messaging_rabbit' = openstack_load_config('features/rabbitmq/openstack/client/base');
 
 # [placement] section
 'contents/placement/os_region_name' = OS_REGION_NAME;
@@ -126,13 +145,6 @@ bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' =
 'contents/placement/username' = OS_PLACEMENT_USERNAME;
 'contents/placement/auth_url' = OS_KEYSTONE_CONTROLLER_PROTOCOL + '://' + OS_KEYSTONE_CONTROLLER_HOST + ':35357/v3';
 'contents/placement/auth_type' = 'password';
-
-# [vnc] section
-'contents/vnc/server_listen' = PRIMARY_IP;
-'contents/vnc/server_proxyclient_address' = PRIMARY_IP;
-
-# [upgrade_levels] section
-'contents/upgrade_levels/compute' = OS_NOVA_UPGRADE_LEVELS;
 
 # [wsgi] section
 'contents/wsgi' = openstack_load_ssl_config( OS_NOVA_CONTROLLER_PROTOCOL == 'https' );

@@ -1,5 +1,7 @@
 unique template features/placement/config;
 
+variable OS_NODE_SERVICES = append('placement');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -23,6 +25,8 @@ prefix '/software/components/metaconfig/services/{/etc/placement/placement.conf}
 'daemons/httpd' = 'restart';
 'convert/joincomma' = true;
 'convert/truefalse' = true;
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/placement/placement.conf}/contents' = openstack_placement_config;
 
 # [api] section

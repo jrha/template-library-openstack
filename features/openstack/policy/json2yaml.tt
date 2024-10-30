@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#
+# Script to convert JSON-formatted policy files to YAML for all the OpenStack services configured on the server.
+# It is harmless to run this script multiple times: it converts the JSON file only if a YAML file is not already present.
+# It is typically run by ncm-metaconfig as a post or changed action.
+
+for service in [% services %]
+do
+    etc_dir=/etc/${service}
+    
+    if [ -f "${etc_dir}/policy.json" ]
+    then
+        if [ ! -f "${etc_dir}/policy.yaml" ]
+        then
+            echo "Converting ${etc_dir}/policy.json to YAML (${etc_dir}/policy.yaml)"
+            oslopolicy-convert-json-to-yaml --config-file "${etc_dir}/${service}.conf" --namespace "${service}" --policy-file "${etc_dir}/policy.json" --output-file "${etc_dir}/policy.yaml"
+        else
+            echo "Policy already in YAML format for $service: nothing done"
+        fi
+
+        #mv ${etc_dir}/policy.json ${etc_dir}/policy.json.to_delete
+
+    else
+        echo "No JSON policy file found for ${service}: nothing done"
+    fi
+done
