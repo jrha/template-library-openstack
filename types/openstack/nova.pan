@@ -31,9 +31,19 @@ type openstack_nova_defaults = {
     'ssl_only' : boolean = false
 
     # Other parameters
+    'compute_driver' ? choice(
+        'fake.FakeDriver',
+        'libvirt.LibvirtDriver',
+        'hyperv.HyperVDriver',
+        'ironic.IronicDriver',
+        'powervm.PowerVMDriver',
+        'vmwareapi.VMwareVCDriver',
+        'zvm.ZVMDriver'
+    )
     'compute_monitors' ? string[]
     'enabled_apis' : string[] = list('osapi_compute', 'metadata')
     'enabled_ssl_apis' : string[] = list()
+    'state_path' ? absolute_file_path
 };
 
 @documentation {
@@ -115,7 +125,8 @@ type openstack_nova_neutron = {
     'username' : string
     'user_domain_id' ? string
     'user_domain_name' ? string
-} with openstack_project_name_or_id(SELF) && ( !SELF['service_metadata_proxy'] || is_defined(SELF['metadata_proxy_shared_secret']) );
+} with openstack_project_name_or_id(SELF) &&
+( !SELF['service_metadata_proxy'] || is_defined(SELF['metadata_proxy_shared_secret']) );
 
 @documentation {
     parameters for nova configuration [notifications] section
@@ -125,7 +136,7 @@ type openstack_nova_notifications = {
 };
 
 @documentation {
-  parameters for alias in [pci] section
+    parameters for alias in [pci] section
 }
 type openstack_nova_pci_alias = {
     'device_type' ? choice('type-PCI', 'type-PF', 'type-VF')
@@ -136,13 +147,13 @@ type openstack_nova_pci_alias = {
 };
 
 @documentation {
-  parameters for nova configuration [pci] section
+    parameters for nova configuration [pci] section
 }
 type openstack_nova_pci = {
-  # Unfortunately it is not possible to use openstack_nova_pci_alias as a dict is not rendered
-  # properly by metaconfig tiny module
-  'alias' ? string
-  'passthrough_whitelist' ? string
+    # Unfortunately it is not possible to use openstack_nova_pci_alias as a dict is not rendered
+    # properly by metaconfig tiny module
+    'alias' ? string
+    'passthrough_whitelist' ? string
 };
 
 @documentation {

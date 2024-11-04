@@ -84,6 +84,7 @@ bind '/software/components/metaconfig/services/{/etc/nova/nova.conf}/contents' =
 include 'features/nova/common/config';
 
 # [DEFAULT] section
+'contents/DEFAULT/compute_driver' = 'libvirt.LibvirtDriver';
 'contents/DEFAULT/cpu_allocation_ratio' = OS_NOVA_CPU_RATIO;
 'contents/DEFAULT/initial_cpu_allocation_ratio' = OS_NOVA_INITIAL_CPU_RATIO;
 'contents/DEFAULT/disk_allocation_ratio' = OS_NOVA_DISK_RATIO;
@@ -91,19 +92,19 @@ include 'features/nova/common/config';
 'contents/DEFAULT/ram_allocation_ratio' = OS_NOVA_RAM_RATIO;
 'contents/DEFAULT/initial_ram_allocation_ratio' = OS_NOVA_INITIAL_RAM_RATIO;
 'contents/DEFAULT/resume_guests_state_on_host_boot' = if (OS_NOVA_RESUME_VM_ON_BOOT) {
-  true;
+    true;
 } else {
-  null;
+    null;
 };
 'contents/DEFAULT/max_concurrent_snapshots' = OS_NOVA_MAX_CONCURRENT_SNAPSHOTS;
 
 # [cinder] section
 'contents/cinder' = {
-  if ( OS_CINDER_ENABLED ) {
-    dict('os_region_name', OS_REGION_NAME);
-  } else {
-    null;
-  };
+    if ( OS_CINDER_ENABLED ) {
+        dict('os_region_name', OS_REGION_NAME);
+    } else {
+        null;
+    };
 };
 
 # [libvirtd] section

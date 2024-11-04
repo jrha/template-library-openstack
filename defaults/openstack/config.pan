@@ -1,9 +1,13 @@
 unique template defaults/openstack/config;
 
+#######################################
+# Include site specific configuration #
+#######################################
+include 'site/openstack/config';
+
 ##################################
 # Define site specific variables #
 ##################################
-include 'site/openstack/config';
 variable PRIMARY_IP ?= DB_IP[escape(FULL_HOSTNAME)];
 
 #####################
@@ -17,11 +21,6 @@ variable OS_SSL_KEY ?= '/etc/certs/' + FULL_HOSTNAME + '.key';
 #####################
 variable OS_REGION_NAME ?= 'RegionOne';
 variable OS_CLOUD_TIMEZONE ?= error("You must specify your cloud timezone with OS_CLOUD_TIMEZONE");
-
-############################################
-# Virtual Machine interface for hypervisor #
-############################################
-variable OS_INTERFACE_MAPPING ?= boot_nic();
 
 ####################
 # General variable #
@@ -64,7 +63,6 @@ variable OS_GLANCE_PUBLIC_PORT ?= if ( OS_GLANCE_CONTROLLER_PROTOCOL == 'https' 
 variable OS_GLANCE_DB_HOST ?= OS_DB_HOST;
 variable OS_GLANCE_DB_USERNAME ?= 'glance';
 variable OS_GLANCE_DB_PASSWORD ?= 'GLANCE_DBPASS';
-variable OS_GLANCE_MULTIPLE_LOCATIONS ?= null;
 variable OS_GLANCE_USERNAME ?= 'glance';
 variable OS_GLANCE_PASSWORD ?= 'GLANCE_PASS';
 
@@ -120,9 +118,9 @@ variable OS_BARBICAN_DB_HOST ?= OS_DB_HOST;
 ##############################
 variable OS_KEYSTONE_CONTROLLER_PROTOCOL ?= 'http';
 variable OS_KEYSTONE_CONTROLLER_HOST ?= error('OS_KEYSTONE_CONTROLLER_HOST must be declared');
-variable OS_KEYSTONE_CONTROLLER_TOKEN_PORT ?= '35357';
+variable OS_KEYSTONE_CONTROLLER_PORT ?= '35357';
 variable OS_KEYSTONE_PUBLIC_CONTROLLER_HOST ?= OS_KEYSTONE_CONTROLLER_HOST;
-variable OS_KEYSTONE_PUBLIC_CONTROLLER_PORT ?= '5000';
+variable OS_KEYSTONE_PUBLIC_CONTROLLER_TOKEN_PORT ?= '5000';
 variable OS_KEYSTONE_DB_HOST ?= OS_DB_HOST;
 variable OS_KEYSTONE_DB_USERNAME ?= 'keystone';
 variable OS_KEYSTONE_DB_PASSWORD ?= 'KEYSTONE_DBPASS';
@@ -164,7 +162,9 @@ variable OS_NOVA_DB_PASSWORD ?= 'NOVA_DBPASS';
 variable OS_NOVA_USERNAME ?= 'nova';
 variable OS_NOVA_PASSWORD ?= 'NOVA_PASS';
 variable OS_NOVA_METADATA_HOST ?= OS_NOVA_CONTROLLER_HOST;
-variable OS_NOVA_UPGRADE_LEVELS ?= error('OS_NOVA_UPGRADE_LEVELS must be defined to the appropriate value for the current OpenStack cluster');
+variable OS_NOVA_UPGRADE_LEVELS ?= error(
+    'OS_NOVA_UPGRADE_LEVELS must be defined to the appropriate value for the current OpenStack cluster'
+);
 # Ceph-related Variables
 variable OS_NOVA_USE_CEPH ?= true;
 variable OS_NOVA_CEPH_IMAGES_POOL ?= undef;
@@ -191,8 +191,8 @@ variable OS_NEUTRON_DVR_BASE_MAC ?= null;
 variable OS_NEUTRON_DEFAULT ?= true;
 variable OS_NEUTRON_DEFAULT_NETWORKS ?= "192.168.0.0/24";
 variable OS_NEUTRON_DEFAULT_DHCP_POOL ?= dict(
-  'start', '192.168.0.10',
-  'end', '192.168.0.254',
+    'start', '192.168.0.10',
+    'end', '192.168.0.254',
 );
 variable OS_NEUTRON_DEFAULT_GATEWAY ?= '192.168.0.1';
 variable OS_NEUTRON_DEFAULT_NAMESERVER ?= '192.168.0.1';

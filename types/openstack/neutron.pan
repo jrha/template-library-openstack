@@ -12,12 +12,14 @@ include 'types/openstack/core';
 type openstack_neutron_server_defaults_config = {
     include openstack_DEFAULTS
     'allow_overlapping_ips': boolean = false
+    'api_workers' ? long
     'base_mac' ? type_hwaddr
     'core_plugin' ? string
     'dns_domain' ? type_fqdn
     'dvr_base_mac' ? type_hwaddr
     'notify_nova_on_port_data_changes' : boolean = true
     'notify_nova_on_port_status_changes' : boolean = true
+    'rpc_workers' ? long
     'service_plugins' : string[]
     'use_ssl' : boolean
 };

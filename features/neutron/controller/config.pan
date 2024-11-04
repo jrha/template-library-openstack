@@ -1,6 +1,22 @@
 unique template features/neutron/controller/config;
 
 @{
+desc = number of API workers
+values = long
+default = number of cores
+requiered = no
+}
+variable OS_NEUTRON_API_WORKERS ?= value('/hardware/cpu/0/cores') * length(value('/hardware/cpu'));
+
+@{
+desc = number of RPC workers
+values = long
+default = number of 1
+requiered = no
+}
+variable OS_NEUTRON_RPC_WORKERS ?= 1;
+
+@{
 desc = if false, allow to disable restart of Neutron server after a config change. Strongly discouraged.
 values = boolean
 default = true
@@ -61,9 +77,16 @@ bind '/software/components/metaconfig/services/{/etc/neutron/neutron.conf}/conte
 'contents/DEFAULT/notify_nova_on_port_status_changes' = true;
 'contents/DEFAULT/notify_nova_on_port_data_changes' = true;
 'contents/DEFAULT/use_ssl' = OS_NEUTRON_CONTROLLER_PROTOCOL == 'https';
+'contents/DEFAULT/api_workers' = OS_NEUTRON_API_WORKERS;
+'contents/DEFAULT/rpc_workers' = OS_NEUTRON_RPC_WORKERS;
 
 # [database]
-'contents/database/connection' = format('mysql+pymysql://%s:%s@%s/neutron', OS_NEUTRON_DB_USERNAME, OS_NEUTRON_DB_PASSWORD, OS_NEUTRON_DB_HOST);
+'contents/database/connection' = format(
+    'mysql+pymysql://%s:%s@%s/neutron',
+    OS_NEUTRON_DB_USERNAME,
+    OS_NEUTRON_DB_PASSWORD,
+    OS_NEUTRON_DB_HOST
+);
 'contents/database/max_pool_size' = OS_NEUTRON_DB_POOL_SIZE;
 'contents/database/max_overflow' = OS_NEUTRON_DB_MAX_OVERFLOW;
 

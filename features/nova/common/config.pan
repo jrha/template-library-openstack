@@ -1,10 +1,21 @@
 unique template features/nova/common/config;
 
+@{
+desc = directory for Nova log files. If null, no log files are produced
+values = path
+default = /var/log/nova
+required = no
+}
+variable OS_NOVA_LOG_DIR ?= '/var/log/nova';
+
+include 'components/metaconfig/config';
 prefix '/software/components/metaconfig/services/{/etc/nova/nova.conf}';
 
 # [DEFAULT] section
 'contents/DEFAULT' = openstack_load_config('features/openstack/base');
 'contents/DEFAULT' = openstack_load_config('features/openstack/logging/' + OS_LOGGING_TYPE);
+'contents/DEFAULT/log_dir' = OS_NOVA_LOG_DIR;
+'contents/DEFAULT/state_path' = '/var/lib/nova';
 
 # [keystone_authtoken] section
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);
