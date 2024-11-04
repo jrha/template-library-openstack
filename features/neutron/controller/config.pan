@@ -9,14 +9,41 @@ required = no
 variable OS_NEUTRON_RESTART_ON_CONFIG_CHANGE ?= true;
 
 
+variable OS_NODE_SERVICES = append('neutron');
+
 # Load Neutron base configuration
 include 'features/neutron/base';
 
 # Include common server configuration
 include 'features/neutron/server';
 
-# Load Neutron server policy
-include 'features/neutron/controller/policy/config';
+# Include policy file if OS_NEUTRON_POLICY is defined
+@{
+desc = file to load as the policy file. File extension is used to determine the policy file extension
+values = path relative to include paths
+default = undef
+requied = no
+}
+variable OS_NEUTRON_POLICY ?= undef;
+include 'components/filecopy/config';
+'/software/components/filecopy/services' = {
+    if ( is_defined(OS_NEUTRON_POLICY) ) {
+        toks = matches(OS_NEUTRON_POLICY, '.*\.(json|yaml)$');
+        if ( length(toks) < 2 ) {
+            error('OS_NEUTRON_POLICY must be a file name with the extension .json or .yaml');
+        };
+        policy_file = format('/etc/neutron/policy.%s', toks[1]);
+        SELF[escape(policy_file)] = dict(
+            'config', file_contents(OS_NEUTRON_POLICY),
+            'owner', 'root',
+            'perms', '0644',
+            'backup', true,
+        );
+    };
+
+    SELF;
+};
+
 
 # neutron.conf
 include 'components/metaconfig/config';
@@ -26,6 +53,8 @@ prefix '/software/components/metaconfig/services/{/etc/neutron/neutron.conf}';
 } else {
     null
 };
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/neutron/neutron.conf}/contents' = openstack_neutron_server_config;
 
 # [DEFAULT]

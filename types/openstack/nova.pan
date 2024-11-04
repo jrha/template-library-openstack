@@ -163,6 +163,22 @@ type openstack_nova_placement = {
 };
 
 @documentation {
+    The configuration options in the service_user section
+}
+type openstack_nova_service_user = {
+    'auth_url' : type_hostURI
+    'auth_type' : string
+    'password' : string
+    'project_domain_id' ? string
+    'project_domain_name' ? string
+    'project_name' : string
+    'send_service_user_token' : boolean
+    'username' : string
+    'user_domain_id' ? string
+    'user_domain_name' ? string
+} with openstack_project_name_or_id(SELF);
+
+@documentation {
     parameters for nova configuration [upgrade_levels] section
 }
 type openstack_nova_upgrade_levels = {
@@ -199,6 +215,7 @@ type openstack_nova_common_config = {
     'oslo_messaging_notifications' ? openstack_oslo_messaging_notifications
     'oslo_messaging_rabbit' ? openstack_oslo_messaging_rabbit
     'placement' ? openstack_nova_placement
+    'service_user' : openstack_nova_service_user
     'upgrade_levels' ? openstack_nova_upgrade_levels
     'vnc' ? openstack_nova_vnc
 };

@@ -1,5 +1,15 @@
 unique template features/magnum/config;
 
+@desc{
+desc = defines the cluster creation timeout (max time)
+values = long
+default = 60
+required = no
+}
+variable OS_MAGNUM_CLUSTER_CREATION_TIMEOUT ?= 60;
+
+variable OS_NODE_SERVICES = append('magnum');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -24,6 +34,8 @@ prefix '/software/components/metaconfig/services/{/etc/magnum/magnum.conf}';
 'convert/truefalse' = true;
 'daemons/openstack-magnum-api' = 'restart';
 'daemons/openstack-magnum-conductor' = 'restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/magnum/magnum.conf}/contents' = openstack_magnum_config;
 
 # [DEFAULT] section
@@ -48,6 +60,9 @@ bind '/software/components/metaconfig/services/{/etc/magnum/magnum.conf}/content
 
 # [cinder_client] section
 'contents/cinder_client/region_name' = OS_REGION_NAME;
+
+# [cluster_heat] section
+'contents/cluster_heat/create_timeout' = OS_MAGNUM_CLUSTER_CREATION_TIMEOUT;
 
 # [database] section
 'contents/database/connection' = format('mysql+pymysql://%s:%s@%s/magnum', OS_MAGNUM_DB_USERNAME, OS_MAGNUM_DB_PASSWORD, OS_MAGNUM_DB_HOST);

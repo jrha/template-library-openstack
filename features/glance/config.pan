@@ -9,6 +9,8 @@ required = no
 variable OS_GLANCE_WORKERS_NUM ?= length(value('/hardware/cpu')) * value('/hardware/cpu/0/cores');
 
 
+variable OS_NODE_SERVICES = append('glance');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -46,6 +48,8 @@ prefix '/software/components/metaconfig/services/{/etc/glance/glance-api.conf}';
 'convert/joincomma' = true;
 'convert/truefalse' = true;
 'daemons/openstack-glance-api' = 'restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/glance/glance-api.conf}/contents' = openstack_glance_api_config;
 
 # [DEFAULT] section

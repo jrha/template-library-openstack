@@ -1,5 +1,7 @@
 unique template features/barbican/config;
 
+variable OS_NODE_SERVICES = append('barbican');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -25,6 +27,8 @@ prefix '/software/components/metaconfig/services/{/etc/barbican/barbican.conf}';
 'convert/joincomma' = true;
 'convert/truefalse' = true;
 'daemons/httpd' = 'restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/barbican/barbican.conf}/contents' = openstack_barbican_config;
 
 

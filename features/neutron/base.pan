@@ -10,7 +10,8 @@ include 'types/openstack/neutron';
 include 'defaults/openstack/config';
 
 # Install RPMs for compute part of neutron
-include 'features/neutron/rpms/config';
+variable OS_NEUTRON_CONFIG_ONLY ?= false;
+include if ( ! OS_NEUTRON_CONFIG_ONLY ) 'features/neutron/rpms/config';
 
 # Include variables needed to configure neutron
 include 'features/neutron/variables/' + OS_NEUTRON_NETWORK_TYPE;

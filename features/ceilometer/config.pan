@@ -1,5 +1,7 @@
 unique template features/ceilometer/config;
 
+variable OS_NODE_SERVICES = append('ceilometer');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -28,6 +30,8 @@ prefix '/software/components/metaconfig/services/{/etc/ceilometer/ceilometer.con
 'daemons/openstack-ceilometer-notification'='restart';
 'daemons/openstack-ceilometer-central'='restart';
 'daemons/openstack-ceilometer-collector'='restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/ceilometer/ceilometer.conf}/contents' = openstack_ceilometer_config;
 
 # [DEFAULT] section

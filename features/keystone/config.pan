@@ -1,5 +1,7 @@
 unique template features/keystone/config;
 
+variable OS_NODE_SERVICES = append('keystone');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -61,6 +63,8 @@ prefix '/software/components/metaconfig/services/{/etc/keystone/keystone.conf}';
 'convert/joincomma' = true;
 'convert/truefalse' = true;
 'daemons/httpd' = 'restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/keystone/keystone.conf}/contents' = openstack_keystone_config;
 
 # [DEFAULT] section

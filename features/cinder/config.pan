@@ -1,5 +1,7 @@
 unique template features/cinder/config;
 
+variable OS_NODE_SERVICES = append('cinder');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -28,6 +30,8 @@ prefix '/software/components/metaconfig/services/{/etc/cinder/cinder.conf}';
 'daemons/openstack-cinder-api' = 'restart';
 'daemons/openstack-cinder-scheduler' = 'restart';
 'daemons/openstack-cinder-volume' = 'restart';
+# Restart memcached to ensure considtency with service configuration changes
+'daemons/memcached' = 'restart';
 bind '/software/components/metaconfig/services/{/etc/cinder/cinder.conf}/contents' = openstack_cinder_config;
 
 # [DEFAULT] section
