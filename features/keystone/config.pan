@@ -117,6 +117,7 @@ bind '/software/components/metaconfig/services/{/etc/keystone/keystone.conf}/con
 'contents/federation' = if ( is_defined(OS_KEYSTONE_FEDERATION_OIDC_PARAMS) && is_defined(OS_HORIZON_PUBLIC_NAMES)) {
     SELF['trusted_dashboard'] = list();
     foreach (host; public; OS_HORIZON_PUBLIC_NAMES) {
+        # panlint disable=PP001
         SELF['trusted_dashboard'][length(SELF['trusted_dashboard'])] = format(
             'https://%s%s/auth/websso/',
             public, OS_HORIZON_ROOT_URL

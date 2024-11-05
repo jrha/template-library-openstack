@@ -23,6 +23,7 @@ include 'components/metaconfig/config';
 include 'features/neutron/agents/linuxbridge_agent/sysctl_schema';
 prefix '/software/components/metaconfig/services/{/etc/sysctl.d/99-neutron-linuxbridge-agent.conf}';
 'module' = 'tiny';
+# panlint disable=LP006
 bind '/software/components/metaconfig/services/{/etc/sysctl.d/99-neutron-linuxbridge-agent.conf}/contents' = openstack_linuxbridge_agent_sysctl;
 # Use default values from schema
 'contents' = dict();
@@ -33,6 +34,7 @@ prefix '/software/components/metaconfig/services/{/etc/neutron/plugins/ml2/linux
 'convert/joincomma' = true;
 'convert/truefalse' = true;
 'daemons/neutron-linuxbridge-agent' = 'restart';
+# panlint disable=LP006
 bind '/software/components/metaconfig/services/{/etc/neutron/plugins/ml2/linuxbridge_agent.ini}/contents' = openstack_neutron_lb_config;
 
 # [linux_bridge] section
