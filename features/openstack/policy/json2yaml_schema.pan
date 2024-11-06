@@ -8,6 +8,7 @@ type openstack_policy_json2yaml = {
         'compute',
         'glance',
         'heat',
+        'horizon',
         'keystone',
         'magnum',
         'nova',

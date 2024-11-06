@@ -1,5 +1,14 @@
 unique template features/neutron/agents/linuxbridge_agent;
 
+@{
+desc =  virtual machine interface on hypervisor
+value = interface name (present on the machine)
+default = interface name returned by boot_nic
+required = no
+}
+variable OS_VM_NETWORK_INTERFACE ?= boot_nic();
+
+
 include 'types/openstack/neutron_agents';
 
 include 'components/systemd/config';
@@ -14,6 +23,7 @@ include 'components/metaconfig/config';
 include 'features/neutron/agents/linuxbridge_agent/sysctl_schema';
 prefix '/software/components/metaconfig/services/{/etc/sysctl.d/99-neutron-linuxbridge-agent.conf}';
 'module' = 'tiny';
+# panlint disable=LP006
 bind '/software/components/metaconfig/services/{/etc/sysctl.d/99-neutron-linuxbridge-agent.conf}/contents' = openstack_linuxbridge_agent_sysctl;
 # Use default values from schema
 'contents' = dict();
@@ -24,10 +34,11 @@ prefix '/software/components/metaconfig/services/{/etc/neutron/plugins/ml2/linux
 'convert/joincomma' = true;
 'convert/truefalse' = true;
 'daemons/neutron-linuxbridge-agent' = 'restart';
+# panlint disable=LP006
 bind '/software/components/metaconfig/services/{/etc/neutron/plugins/ml2/linuxbridge_agent.ini}/contents' = openstack_neutron_lb_config;
 
 # [linux_bridge] section
-'contents/linux_bridge/physical_interface_mappings' = 'public:' + OS_INTERFACE_MAPPING;
+'contents/linux_bridge/physical_interface_mappings' = 'public:' + OS_VM_NETWORK_INTERFACE;
 
 # [vxlan] section
 'contents/vxlan/enable_vxlan' = OS_NEUTRON_VXLAN_ENABLED;

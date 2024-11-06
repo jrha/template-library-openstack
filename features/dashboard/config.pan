@@ -2,6 +2,8 @@ unique template features/dashboard/config;
 
 final variable OPENSTACK_DASHBOARD_OCTAVIA_UI_ENABLER ?= '_1482_project_load_balancer_panel.py';
 
+variable OS_NODE_SERVICES = append('horizon');
+
 # Load some useful functions
 include 'defaults/openstack/functions';
 
@@ -27,10 +29,13 @@ include 'components/symlink/config';
 "/software/components/symlink/links" = {
     if ( is_defined(OS_OCTAVIA_PUBLIC_HOST) ) {
         SELF[length(SELF)] = dict(
-            "name", format('/usr/lib/python3.6/site-packages/octavia_dashboard/enabled/%s', OPENSTACK_DASHBOARD_OCTAVIA_UI_ENABLER),
+            "name", format(
+                '/usr/lib/python3.6/site-packages/octavia_dashboard/enabled/%s',
+                OPENSTACK_DASHBOARD_OCTAVIA_UI_ENABLER
+            ),
             "target", format('/etc/openstack-dashboard/enabled/%s', OPENSTACK_DASHBOARD_OCTAVIA_UI_ENABLER),
             "exists", false,
-            "replace", nlist("all","yes"),
+            "replace", dict("all", "yes"),
         );
     };
 
@@ -39,4 +44,4 @@ include 'components/symlink/config';
     } else {
         null;
     };
-}; 
+};

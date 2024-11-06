@@ -1,5 +1,15 @@
 unique template features/glance/config;
 
+# Load some useful functions
+include 'defaults/openstack/functions';
+
+# Define Glance types
+include 'types/openstack/glance';
+
+# Include general openstack variables
+include 'defaults/openstack/config';
+
+
 @{
 desc = number of Glance API workers to start
 values = long
@@ -11,14 +21,29 @@ variable OS_GLANCE_WORKERS_NUM ?= length(value('/hardware/cpu')) * value('/hardw
 
 variable OS_NODE_SERVICES = append('glance');
 
-# Load some useful functions
-include 'defaults/openstack/functions';
+@{
+desc = log file for Glance service. If null, no log file is produced
+values = path
+default = /var/log/glance/api.log
+required = no
+}
+variable OS_GLANCE_LOG_FILE ?= '/var/log/glance/api.log';
 
-# Define Glance types
-include 'types/openstack/glance';
-
-# Include general openstack variables
-include 'defaults/openstack/config';
+@{
+desc = depredated option to show multiple locations when returning an image \
+       use discouraged since Newton but no alternative yet (Yoga). Define \
+       the relevant option only if defined to true.
+values = boolean
+default = undef
+required =no
+}
+variable OS_GLANCE_MULTIPLE_LOCATIONS = {
+    if ( is_boolean(SELF) && SELF ) {
+        true;
+    } else {
+        null;
+    };
+};
 
 # Add Glance bae RPMs
 include 'features/glance/rpms';
@@ -55,12 +80,18 @@ bind '/software/components/metaconfig/services/{/etc/glance/glance-api.conf}/con
 # [DEFAULT] section
 'contents/DEFAULT' = openstack_load_config('features/openstack/base');
 'contents/DEFAULT' = openstack_load_config('features/openstack/logging/' + OS_LOGGING_TYPE);
+'contents/DEFAULT/log_file' = OS_GLANCE_LOG_FILE;
 'contents/DEFAULT/show_image_direct_url' = OS_COW_IMG_CLONING_ENABLED;
 'contents/DEFAULT/show_multiple_locations' = OS_GLANCE_MULTIPLE_LOCATIONS;
 'contents/DEFAULT/workers' = OS_GLANCE_WORKERS_NUM;
 
 # [database] section
-'contents/database/connection' = format('mysql+pymysql://%s:%s@%s/glance', OS_GLANCE_DB_USERNAME, OS_GLANCE_DB_PASSWORD, OS_GLANCE_DB_HOST);
+'contents/database/connection' = format(
+    'mysql+pymysql://%s:%s@%s/glance',
+    OS_GLANCE_DB_USERNAME,
+    OS_GLANCE_DB_PASSWORD,
+    OS_GLANCE_DB_HOST
+);
 
 # [keystone_authtoken] section
 'contents/keystone_authtoken' = openstack_load_config(OS_AUTH_CLIENT_CONFIG);

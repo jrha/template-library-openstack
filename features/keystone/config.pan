@@ -74,6 +74,8 @@ bind '/software/components/metaconfig/services/{/etc/keystone/keystone.conf}/con
 'contents/DEFAULT/admin_token' ?= OS_ADMIN_TOKEN;
 # Remove unsupported parameters
 'contents/DEFAULT/auth_strategy' = null;
+'contents/DEFAULT/log_file' = 'keystone.log';
+'contents/DEFAULT/log_dir' = '/var/log/keystone';
 'contents/DEFAULT/max_token_size' = if ( is_defined(OS_KEYSTONE_TOKEN_MAX_SIZE) ) {
     OS_KEYSTONE_TOKEN_MAX_SIZE;
 } else {
@@ -98,19 +100,28 @@ bind '/software/components/metaconfig/services/{/etc/keystone/keystone.conf}/con
 
 # [credentials] section
 'contents/credentials' = if ( OS_KEYSTONE_CREDENTIAL_TOKENS ) {
-    dict('key_repository','/etc/keystone/credentials-keys');
+    dict('key_repository', '/etc/keystone/credentials-keys');
 } else {
     null;
 };
 
 # [database] section
-'contents/database/connection' = format('mysql+pymysql://%s:%s@%s/keystone', OS_KEYSTONE_DB_USERNAME, OS_KEYSTONE_DB_PASSWORD, OS_KEYSTONE_DB_HOST);
+'contents/database/connection' = format(
+    'mysql+pymysql://%s:%s@%s/keystone',
+    OS_KEYSTONE_DB_USERNAME,
+    OS_KEYSTONE_DB_PASSWORD,
+    OS_KEYSTONE_DB_HOST
+);
 
 # [federation] section
 'contents/federation' = if ( is_defined(OS_KEYSTONE_FEDERATION_OIDC_PARAMS) && is_defined(OS_HORIZON_PUBLIC_NAMES)) {
     SELF['trusted_dashboard'] = list();
     foreach (host; public; OS_HORIZON_PUBLIC_NAMES) {
-        SELF['trusted_dashboard'][length(SELF['trusted_dashboard'])] = format('https://%s%s/auth/websso/', public, OS_HORIZON_ROOT_URL);
+        # panlint disable=PP001
+        SELF['trusted_dashboard'][length(SELF['trusted_dashboard'])] = format(
+            'https://%s%s/auth/websso/',
+            public, OS_HORIZON_ROOT_URL
+        );
     };
     SELF;
 } else {

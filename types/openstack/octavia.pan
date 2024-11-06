@@ -90,7 +90,27 @@ type octavia_mgt_interface_service_config = {
     'MGMT_PORT_MAC' : type_hwaddr
     'MGMT_VLAN_ID' ? long(1..)
     'VXLAN_DEVICE' ? string
+} with {
+    if ( is_defined(SELF['VXLAN_DEVICE']) ) {
+        found = false;
+        foreach (interface; params; value('/system/network/interfaces')) {
+            if ( SELF['VXLAN_DEVICE'] == interface ) {
+                found = true;
+            } else if ( is_defined(params['device']) && (SELF['VXLAN_DEVICE'] == params['device']) ) {
+                found = true;
+            };
+        };
+        if ( found ) {
+            true;
+        } else {
+            error(
+                "VLAN_DEVICE refers to device %s which is not configured on this server",
+                SELF['VXLAN_DEVICE']
+            );
+        };
+    };
 };
+
 
 
 ###########################################################
@@ -133,7 +153,11 @@ type octavia_mgt_network_config = {
 ############################################################
 
 type octavia_mgt_network_dhcp_client_options = {
-    'request' : choice('subnet-mask', 'broadcast-address', 'interface-mtu')[] = list('subnet-mask', 'broadcast-address', 'interface-mtu')
+    'request' : choice(
+        'subnet-mask',
+        'broadcast-address',
+        'interface-mtu'
+    )[] = list('subnet-mask', 'broadcast-address', 'interface-mtu')
     'do-forward-updates' : boolean = false
 };
 
@@ -150,5 +174,5 @@ type octavia_mgt_network_dhcp_client_config = {
 type octavia_ca_parameters_config = {
     'ca_cert_dir' : absolute_file_path = '/etc/octavia/certs'
     'priv_key_encryption_algorithm' : choice('aes-128-cbc', 'aes-256-cbc') = 'aes-256-cbc'
-    'priv_key_length' : long =4096 with (SELF == 2048) || (SELF == 4096)
+    'priv_key_length' : long = 4096 with (SELF == 2048) || (SELF == 4096)
 };
