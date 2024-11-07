@@ -18,6 +18,7 @@ type openstack_glance_defaults = {
     'public_endpoint' ? type_hostURI
     'show_image_direct_url' ? boolean = false
     'show_multiple_locations' ? boolean
+    'worker_self_reference_url' ? type_hostURI
     'workers' ? long
 
 };
