@@ -75,6 +75,8 @@ type openstack_keystone_authtoken = {
     'auth_url' : type_hostURI
     'auth_type' : string
     'auth_version' ? string
+    'enforce_scope' ? boolean
+    'enforce_new_defaults' ? boolean
     'memcached_servers' ? type_hostport[]
     'password' : string
     'project_domain_id' ? string

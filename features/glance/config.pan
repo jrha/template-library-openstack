@@ -83,6 +83,12 @@ bind '/software/components/metaconfig/services/{/etc/glance/glance-api.conf}/con
 'contents/DEFAULT/log_file' = OS_GLANCE_LOG_FILE;
 'contents/DEFAULT/show_image_direct_url' = OS_COW_IMG_CLONING_ENABLED;
 'contents/DEFAULT/show_multiple_locations' = OS_GLANCE_MULTIPLE_LOCATIONS;
+'contents/DEFAULT/worker_self_reference_url' = format(
+    '%s://%s:%s',
+    OS_GLANCE_CONTROLLER_PROTOCOL,
+    OS_GLANCE_CONTROLLER_HOST,
+    OS_GLANCE_CONTROLLER_PORT
+);
 'contents/DEFAULT/workers' = OS_GLANCE_WORKERS_NUM;
 
 # [database] section

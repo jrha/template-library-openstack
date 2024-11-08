@@ -11,6 +11,9 @@ include 'types/openstack/octavia';
 # Include general openstack variables
 include 'defaults/openstack/config';
 
+# Configure gunicorn
+# 2024-03-17: Work in progress - not working yet
+#include 'features/octavia/gunicorn/config';
 
 @{
 desc = password used to encrypt CA private key for both Octavia CAs
@@ -18,7 +21,9 @@ values = string, 32 characters long
 default = none
 required = yes
 }
-variable OS_OCTAVIA_CA_KEY_PASSWORD ?= error('You must define OS_OCTAVIA_CA_KEY_PASSWORD with the passaword to use when the Octavia CAs');
+variable OS_OCTAVIA_CA_KEY_PASSWORD ?= error(
+    'You must define OS_OCTAVIA_CA_KEY_PASSWORD with the passaword to use when the Octavia CAs'
+);
 variable OS_OCTAVIA_CA_KEY_PASSWORD = if ( length(OS_OCTAVIA_CA_KEY_PASSWORD) == 32 ) {
     SELF;
 } else {
@@ -32,7 +37,9 @@ values = string (strong and long >= 20 characters)
 default = none
 required = yes
 }
-variable OS_OCTAVIA_AMPHORA_CERT_PASSWORD ?= error('You must define OS_OCTAVIA_AMPHORA_CERT_PASSWORD with the password to use when creating the Octavia CAs');
+variable OS_OCTAVIA_AMPHORA_CERT_PASSWORD ?= error(
+    'You must define OS_OCTAVIA_AMPHORA_CERT_PASSWORD with the password to use when creating the Octavia CAs'
+);
 variable OS_OCTAVIA_AMPHORA_CERT_PASSWORD = if ( length(OS_OCTAVIA_AMPHORA_CERT_PASSWORD) >= 20 ) {
     OS_OCTAVIA_AMPHORA_CERT_PASSWORD;
 } else {
@@ -73,7 +80,9 @@ values = string
 default = none
 required = yes
 }
-variable OS_OCTAVIA_SERVICE_SSH_KEY ?= error('You must define OS_OCTAVIA_SERVICE_SSH_KEY with the OpenStack name of the octavia user SSH key to use');
+variable OS_OCTAVIA_SERVICE_SSH_KEY ?= error(
+    'You must define OS_OCTAVIA_SERVICE_SSH_KEY with the OpenStack name of the octavia user SSH key to use'
+);
 
 
 # For the following parameters, default values should be appropriate
@@ -137,7 +146,12 @@ bind '/software/components/metaconfig/services/{/etc/octavia/octavia.conf}/conte
 'contents/controller_worker/client_ca' = format('%s/client_ca.cert.pem', OS_OCTAVIA_CA_CERT_DIR);
 
 # [database] section
-'contents/database/connection' = format('mysql+pymysql://%s:%s@%s/octavia', OS_OCTAVIA_DB_USERNAME, OS_OCTAVIA_DB_PASSWORD, OS_OCTAVIA_DB_HOST);
+'contents/database/connection' = format(
+    'mysql+pymysql://%s:%s@%s/octavia',
+    OS_OCTAVIA_DB_USERNAME,
+    OS_OCTAVIA_DB_PASSWORD,
+    OS_OCTAVIA_DB_HOST
+);
 
 # [haproxy_amphora] section
 'contents/haproxy_amphora/client_cert' = format('%s/client.cert-and-key.pem', OS_OCTAVIA_CA_CERT_DIR);
@@ -161,7 +175,9 @@ bind '/software/components/metaconfig/services/{/etc/octavia/octavia.conf}/conte
 'contents/oslo_messaging_notifications' = openstack_load_config('features/oslo_messaging/notifications');
 
 # [service_auth] section
-'contents/service_auth' = value('/software/components/metaconfig/services/{/etc/octavia/octavia.conf}/contents/keystone_authtoken');
+'contents/service_auth' = value(
+    '/software/components/metaconfig/services/{/etc/octavia/octavia.conf}/contents/keystone_authtoken'
+);
 'contents/service_auth/region_name' = null;
 'contents/service_auth/www_authenticate_uri' = null;
 

@@ -8,6 +8,22 @@ required = no
 }
 variable OS_NOVA_LIVE_MIGRATION_SITE_CONFIG ?= undef;
 
+@{
+desc = max number of files that can be opened. Must be large enough when \
+       the compute server has a large number of cores, to accomodate a large \
+       number of VMs
+values = long
+default = 32 files / physical core (e.g. 4096 on a 128 physical core machine), with a minimum = 1024
+required = no
+}
+variable OS_NOVA_COMPUTE_MAX_FILES ?= {
+    nofile = value('/hardware/cpu/0/cores') * length(value('/hardware/cpu')) * 32;
+    # 1024 is the default value, do not set a lower value
+    if ( nofile  < 1024 ) {
+        nofile = 1024;
+    };
+    nofile;
+};
 
 variable OS_NODE_SERVICES = append('nova');
 
@@ -67,6 +83,7 @@ prefix '/software/components/systemd/unit';
 'libvirtd/startstop' = true;
 'openstack-nova-compute/startstop' = true;
 
+'openstack-nova-compute/file/config/service/LimitNOFILE' = OS_NOVA_COMPUTE_MAX_FILES;
 
 # Configuration file for nova
 include 'components/metaconfig/config';
